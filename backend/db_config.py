@@ -17,5 +17,3 @@ def connect_db():
             return connection
     except Error as e:
         print(f"Cannot connect to the database. \nError: {e}")
-
-connect_db()

@@ -1,16 +1,12 @@
-# This is a sample Python script.
+from fastapi import FastAPI
+from backend.routes import country_routes, city_routes, doc_routes, book_class_routes, book_type_routes, airport_routes
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI()
 
+app.include_router(country_routes.country_router)
+app.include_router(city_routes.city_router)
+app.include_router(doc_routes.doc_router)
+app.include_router(book_class_routes.book_class_router)
+app.include_router(book_type_routes.book_type_router)
+app.include_router(airport_routes.airport_router)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
