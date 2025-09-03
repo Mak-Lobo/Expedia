@@ -1,7 +1,10 @@
+import 'package:expedia/configurations/backend_connect.dart';
+import 'package:expedia/configurations/passenger_config.dart';
 import 'package:expedia/forms/airline.dart';
 import 'package:expedia/forms/country.dart';
 import 'package:expedia/forms/documents.dart';
-import 'package:expedia/pages/dashboard.dart';
+import 'package:expedia/pages/screen.dart';
+import 'package:get_it/get_it.dart';
 import 'forms/passengers.dart';
 
 import 'package:flutter/material.dart';
@@ -13,13 +16,22 @@ void main() {
   runApp(const MyApp());
 }
 
-// go routes
+// get_it instances
+GetIt getIt = GetIt.instance;
 
+void setupInstances() {
+  getIt.registerLazySingleton<DbConnect>(() => DbConnect());
+  getIt.registerLazySingleton<PassengerForm>(() => PassengerForm());
+  getIt.registerLazySingleton<CityForm>(() => CityForm());
+  getIt.registerLazySingleton<PassengerConfig>(() => PassengerConfig());
+}
+
+// go routes
 final _router = GoRouter(
-  initialLocation: "/passengerForm",
+  initialLocation: "/",
   navigatorKey: GlobalKey<NavigatorState>(),
   routes: [
-    GoRoute(path: "/", builder: (context, state) => const Dashboard()),
+    GoRoute(path: "/", builder: (context, state) => const Screen()),
     GoRoute(
       path: "/passengerForm",
       builder: (context, state) => const PassengerForm(),
@@ -51,19 +63,23 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         useSystemColors: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
+          seedColor: Colors.teal,
           brightness: Brightness.light,
         ),
         brightness: Brightness.light,
+        fontFamily: "Urbanist",
+        fontFamilyFallback: ["Texturina"],
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
         useSystemColors: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
+          seedColor: Colors.teal,
           brightness: Brightness.dark,
         ),
         brightness: Brightness.dark,
+        fontFamily: "Urbanist",
+        fontFamilyFallback: ["Montserrat", "Texturina"],
       ),
       themeMode: ThemeMode.dark,
     );

@@ -52,3 +52,30 @@ class SubmitButton extends StatelessWidget {
     );
   }
 }
+
+// custom text button
+class CustomTextButton extends StatelessWidget {
+  final String text;
+
+  const CustomTextButton({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {},
+      style: ButtonStyle(
+        backgroundColor: WidgetStatePropertyAll(
+          Theme.of(
+            context,
+          ).colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall!.copyWith(fontFamily: "Montserrat"),
+      ),
+    );
+  }
+}

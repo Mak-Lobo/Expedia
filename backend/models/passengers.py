@@ -12,6 +12,7 @@ class Passenger(BaseModel):
     email: str
     doc_type: int
     doc_number: int
+    doc_expiry: str
     nationality: int
 
 
@@ -19,10 +20,11 @@ class SavePassenger(BaseModel):
     first_name: str
     last_name: str
     sex: str
-    birth_date: datetime
+    birth_date: str
     email: str
     doc_type: int
     doc_number: int
+    doc_expiry: str
     nationality: int
 
 

@@ -89,6 +89,9 @@ flutter:
     - family: Texturina
       fonts:
         - asset: fonts/Texturina-VariableFont_opsz,wght.ttf
+    - family: Montserrat
+      fonts:
+        - asset: fonts/Montserrat-Regular.ttf
 
   #
   # For details regarding fonts from package dependencies,

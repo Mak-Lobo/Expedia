@@ -20,7 +20,8 @@ if db_connection:
             for result in cursor.stored_results():
                 rows = result.fetchall()
                 passengers = [Passenger(id=row[0], first_name=row[1], last_name=row[2], sex=row[3], birth_date=row[4],
-                                        email=row[5], doc_type=row[6], doc_number=row[7], nationality=row[9]) for row in
+                                        email=row[5], doc_type=row[6], doc_number=row[7], doc_expiry=row[8],
+                                        nationality=row[9]) for row in
                               rows]
             return passengers
         except Error as e:
@@ -32,10 +33,24 @@ if db_connection:
     @pass_router.post('/', response_model=Passenger)
     async def save_passenger(passenger: SavePassenger):
         cursor = db_connection.cursor()
+        # existing record check
+        try:
+            cursor.execute(
+                "SELECT * FROM passengers WHERE email=%s OR (doc_type=%s AND doc_number=%s)",
+                (passenger.email, passenger.doc_type, passenger.doc_number)
+            )
+            existing = cursor.fetchone()
+            if existing:
+                return {"message": "Passenger already exists", "id": existing["id"]}
+        except Error as e:
+            return {"message": f"Error checking for existing passenger. \nError: {e}"}
+
+        # input data
         try:
             cursor.callproc("save_passenger",
                             [passenger.first_name, passenger.last_name, passenger.sex, passenger.birth_date,
-                             passenger.email, passenger.doc_type, passenger.doc_number, passenger.nationality])
+                             passenger.email, passenger.doc_type, passenger.doc_number, passenger.doc_expiry,
+                             passenger.nationality])
             db_connection.commit()
             return "Passenger saved successfully"
         except Error as e:
@@ -63,7 +78,8 @@ if db_connection:
         try:
             cursor.callproc("update_passenger",
                             [pass_id, passenger.first_name, passenger.last_name, passenger.sex, passenger.birth_date,
-                             passenger.email, passenger.doc_type, passenger.doc_number, passenger.nationality])
+                             passenger.email, passenger.doc_type, passenger.doc_number, passenger.doc_expiry,
+                             passenger.nationality])
             db_connection.commit()
             return "Passenger updated successfully"
         except Error as e:
