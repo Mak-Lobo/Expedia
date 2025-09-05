@@ -59,4 +59,14 @@ class PassengerConfig {
       return "Failure to save passenger: $e";
     }
   }
+
+  Future<String> deletePassenger(int passDelete) async {
+    try {
+      final response = await _dio.delete("$endpoint/delete/$passDelete");
+      print('API delete passenger response data: ${response.data}');
+      return response.data;
+    } catch (e) {
+      return "Failure to delete passenger: $e";
+    }
+  }
 }

@@ -59,7 +59,7 @@ if db_connection:
             cursor.close()
 
 
-    @pass_router.delete('/{id}', response_model=dict)
+    @pass_router.delete('/delete/{pass_id}', response_model=dict)
     async def get_passenger(pass_id: int):
         cursor = db_connection.cursor()
         try:
@@ -72,7 +72,7 @@ if db_connection:
             cursor.close()
 
 
-    @pass_router.put('/{id}', response_model=str | dict)
+    @pass_router.put('/update', response_model=str | dict)
     async def update_passenger(pass_id: int, passenger: SavePassenger):
         cursor = db_connection.cursor()
         try:

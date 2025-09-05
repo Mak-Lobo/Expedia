@@ -1,9 +1,12 @@
 import 'package:expedia/customWidgets/form_headers.dart';
+import 'package:expedia/customWidgets/inputs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../configurations/passenger_config.dart';
+import '../customWidgets/snack.dart';
 import '../customWidgets/table_cell.dart';
 
 GetIt getIt = GetIt.instance;
@@ -17,6 +20,19 @@ class PassengersData extends StatefulWidget {
 
 class _PassengersDataState extends State<PassengersData> {
   final passengerConfig = getIt.get<PassengerConfig>();
+  TextEditingController? _idToBeDeleted;
+
+  @override
+  void initState() {
+    super.initState();
+    _idToBeDeleted = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _idToBeDeleted?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,8 +159,75 @@ class _PassengersDataState extends State<PassengersData> {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          Divider(
+            thickness: 1.3,
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _idToBeDeleted,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  decoration: customInputField(context, "Passenger to delete"),
+                ),
+              ),
+              const SizedBox(width: 20),
+              DeleteButton(
+                onPressed: () {
+                  deletePassenger(context);
+                },
+              ),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> deletePassenger(BuildContext context) async {
+    if (_idToBeDeleted!.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields.")),
+      );
+    } else {
+      try {
+        await passengerConfig.deletePassenger(int.parse(_idToBeDeleted!.text));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              message: "Passenger deleted successfully",
+              backgroundColor: Theme.of(context).colorScheme.primary,
+            ),
+            snackBarAnimationStyle: AnimationStyle(
+              // This property does not exist on SnackBar
+              curve: Curves.easeOut,
+              reverseCurve: Curves.easeInCirc,
+            ),
+          );
+        }
+      } on Exception catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              message: "Failure to delete passenger: ${e.toString()}",
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.error.withValues(blue: 0.4, green: 0.4, red: 0.4),
+            ),
+            snackBarAnimationStyle: AnimationStyle(
+              // This property does not exist on SnackBar
+              curve: Curves.easeOut,
+              reverseCurve: Curves.easeInCirc,
+            ),
+          );
+        }
+      }
+    }
   }
 }

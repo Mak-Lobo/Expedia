@@ -44,10 +44,39 @@ class SubmitButton extends StatelessWidget {
             ).textTheme.bodyLarge!.copyWith(fontFamily: "Texturina"),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-          child: Text("Submit"),
+        child: Padding(padding: const EdgeInsets.all(5), child: Text("Submit")),
+      ),
+    );
+  }
+}
+
+// custom delete button
+class DeleteButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const DeleteButton({super.key, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          backgroundColor: WidgetStatePropertyAll(
+            Theme.of(context).colorScheme.errorContainer,
+          ),
+          foregroundColor: WidgetStatePropertyAll(
+            Theme.of(context).colorScheme.onErrorContainer,
+          ),
+          textStyle: WidgetStatePropertyAll(
+            Theme.of(context).textTheme.bodyLarge!.copyWith(
+              fontFamily: "Texturina",
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
+        child: Padding(padding: const EdgeInsets.all(5), child: Text("Delete")),
       ),
     );
   }
@@ -72,9 +101,12 @@ class CustomTextButton extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: Theme.of(
-          context,
-        ).textTheme.bodySmall!.copyWith(fontFamily: "Montserrat"),
+        style: TextStyle(
+          fontFamily: "Montserrat",
+          color: Theme.of(context).colorScheme.onTertiaryContainer,
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+        ),
       ),
     );
   }

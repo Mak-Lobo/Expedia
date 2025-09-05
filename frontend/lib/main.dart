@@ -85,7 +85,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Urbanist",
         fontFamilyFallback: ["Montserrat", "Texturina"],
       ),
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.light,
     );
   }
 }
