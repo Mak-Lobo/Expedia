@@ -11,7 +11,8 @@ class DbConnect {
     final dio = Dio();
 
     try {
-      await dio.get('$_host');
+      await dio.get(_host);
+      print(_host);
     } catch (e) {
       print('Error: $e. Failure to connect to the database.');
     }

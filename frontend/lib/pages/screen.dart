@@ -12,7 +12,7 @@ class Screen extends StatefulWidget {
 }
 
 class _ScreenState extends State<Screen> {
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
   bool _isVisible = true;
 
   // screens
@@ -41,13 +41,14 @@ class _ScreenState extends State<Screen> {
                     icon: Icon(Icons.home),
                     label: Text("Dashboard"),
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.edit),
-                    label: Text("Modify"),
-                  ),
+
                   NavigationRailDestination(
                     icon: Icon(Icons.book_rounded),
                     label: Text("Fetch Data"),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.edit),
+                    label: Text("Modify"),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.flight_takeoff),

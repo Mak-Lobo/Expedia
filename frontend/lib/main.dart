@@ -1,4 +1,5 @@
 import 'package:expedia/configurations/backend_connect.dart';
+import 'package:expedia/configurations/city_config.dart';
 import 'package:expedia/configurations/passenger_config.dart';
 import 'package:expedia/forms/airline.dart';
 import 'package:expedia/forms/country.dart';
@@ -13,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'forms/city.dart';
 
 void main() {
+  setupInstances();
   runApp(const MyApp());
 }
 
@@ -24,6 +26,8 @@ void setupInstances() {
   getIt.registerLazySingleton<PassengerForm>(() => PassengerForm());
   getIt.registerLazySingleton<CityForm>(() => CityForm());
   getIt.registerLazySingleton<PassengerConfig>(() => PassengerConfig());
+  getIt.registerLazySingleton<DocForm>(() => DocForm());
+  getIt.registerLazySingleton<CityConfig>(() => CityConfig());
 }
 
 // go routes

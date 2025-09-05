@@ -1,6 +1,5 @@
 class City {
-  final int?
-  id; // Nullable for SaveCity, required for DeleteCity and UpdateCity
+  final int? id;
   final String name;
   final int countryId;
 

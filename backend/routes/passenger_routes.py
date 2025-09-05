@@ -30,18 +30,18 @@ if db_connection:
             cursor.close()
 
 
-    @pass_router.post('/', response_model=Passenger)
+    @pass_router.post('/save', response_model=dict)
     async def save_passenger(passenger: SavePassenger):
         cursor = db_connection.cursor()
         # existing record check
         try:
             cursor.execute(
-                "SELECT * FROM passengers WHERE email=%s OR (doc_type=%s AND doc_number=%s)",
+                "SELECT * FROM Passengers WHERE Email_Address=%s OR (Document_Type=%s AND Document_No=%s)",
                 (passenger.email, passenger.doc_type, passenger.doc_number)
             )
             existing = cursor.fetchone()
             if existing:
-                return {"message": "Passenger already exists", "id": existing["id"]}
+                return {"message": "Passenger already exists"}
         except Error as e:
             return {"message": f"Error checking for existing passenger. \nError: {e}"}
 
@@ -59,20 +59,20 @@ if db_connection:
             cursor.close()
 
 
-    @pass_router.delete('/{id}', response_model=Passenger)
+    @pass_router.delete('/{id}', response_model=dict)
     async def get_passenger(pass_id: int):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("delete_passenger", [pass_id])
             db_connection.commit()
-            return "Passenger deleted successfully"
+            return {"message": "Passenger deleted successfully"}
         except Error as e:
             return {"message": f"Error deleting passenger. \nError: {e}"}
         finally:
             cursor.close()
 
 
-    @pass_router.put('/{id}', response_model=Passenger)
+    @pass_router.put('/{id}', response_model=str | dict)
     async def update_passenger(pass_id: int, passenger: SavePassenger):
         cursor = db_connection.cursor()
         try:

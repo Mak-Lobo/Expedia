@@ -23,12 +23,12 @@ class Passenger {
     required this.nationality,
   });
 
-  // factory method to convert object to JSON
+  // factory method to convert Json to object
   factory Passenger.fromJson(Map<String, dynamic> json) {
     return Passenger(
       id: json['id'] as int?,
-      firstName: json['firstName'],
-      lastName: json['lastName'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
       sex: json['sex'],
       birthDate: json['birth_date'],
       email: json['email'],
@@ -40,7 +40,7 @@ class Passenger {
   }
 
   // JSON to object map
-  Map<String, dynamic> toObject() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'first_name': firstName,

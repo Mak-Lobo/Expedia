@@ -36,6 +36,7 @@ dependencies:
   dio: any
   go_router: any
   file_picker: any
+  intl: any
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8

@@ -10,8 +10,8 @@ country_router = APIRouter(prefix="/countries", tags=["Countries"])
 
 db_connection = db_config.connect_db()
 
-if db_connection :
-    @country_router.get("/", response_model= List[Country])
+if db_connection:
+    @country_router.get("/", response_model=List[Country])
     async def get_countries():
         """
             Get all countries in the database
@@ -35,6 +35,15 @@ if db_connection :
     @country_router.post("/")
     async def save_country(country: SaveCountry):
         cursor = db_connection.cursor()
+        # existing record check
+        try:
+            cursor.execute("Select * from Country where Country_Name = %s", (country.name,))
+            existing = cursor.fetchone()
+            if existing:
+                return {"message": f"Country {country.name} already exists"}
+        except Error as e:
+            return {"message": f"Error checking for existing country. \nError: {e}"}
+
         try:
             cursor.callproc("save_countries", [country.name])
             db_connection.commit()

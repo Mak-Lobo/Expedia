@@ -11,8 +11,8 @@ city_router = APIRouter(prefix="/cities", tags=["Cities"])
 
 db_connection = db_config.connect_db()
 
-if db_connection :
-    @city_router.get("/", response_model= List[City])
+if db_connection:
+    @city_router.get("/", response_model=List[City])
     async def get_cities():
         """
         ### Get all cities in the database
@@ -30,6 +30,7 @@ if db_connection :
         finally:
             cursor.close()
 
+
     @city_router.get("/countries", response_model=List[CityCountry])
     async def cities_with_countries():
         """
@@ -41,19 +42,26 @@ if db_connection :
             associates = []
             for result in cursor.stored_results():
                 rows = result.fetchall()
-                associates = [CityCountry(city = row[0], country= row[1]) for row in rows]
+                associates = [CityCountry(city=row[0], country=row[1]) for row in rows]
             return associates
         except Error as e:
             return {"message": f"Error getting cities with their associated countries. \nError: {e}"}
         finally:
             cursor.close()
 
-    @city_router.post("/")
+
+    @city_router.post("/save", response_model=dict)
     async def save_city(city: SaveCity):
         """
         ### Save a new city
         """
         cursor = db_connection.cursor()
+        # existing record check
+        cursor.execute("SELECT * FROM City WHERE City_Name = %s", (city.name,))
+        existing = cursor.fetchone()
+        if existing:
+            return {"message": f"City {city.name} already exists"}
+
         try:
             cursor.callproc("save_cities", [city.name, city.country_id])
             db_connection.commit()
@@ -63,7 +71,8 @@ if db_connection :
         finally:
             cursor.close()
 
-    @city_router.delete("/")
+
+    @city_router.delete("/delete", response_model=dict)
     async def delete_city(city_id: int):
         """
         ### Delete a city
@@ -78,7 +87,8 @@ if db_connection :
         finally:
             cursor.close()
 
-    @city_router.put("/")
+
+    @city_router.put("/update", response_model=dict)
     async def update_city(city: UpdateCity):
         cursor = db_connection.cursor()
         try:
