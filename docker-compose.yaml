@@ -1,0 +1,22 @@
+services:
+  database:
+    image: markkabaru/expedia-clone-db-example
+    container_name: expedia-db
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: expedia
+      MYSQL_USER: my_bench
+      MYSQL_PASSWORD: Makomani@123
+
+    ports:
+      - "3305:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    restart: unless-stopped
+
+
+volumes:
+  mysql_data:
