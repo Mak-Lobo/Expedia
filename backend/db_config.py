@@ -1,11 +1,14 @@
 import mysql.connector
 from mysql.connector import Error
+import dotenv, os
+
+dotenv.load_dotenv()
 
 DB_CONFIG = {
-    "host": "localhost",
-    "database": "expedia",
-    "user": "my_bench",
-    "password": "Makomani@123"
+    "host": os.getenv("HOST"),
+    "database": os.getenv("DATABASE"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("PASSWORD")
 }
 
 
@@ -16,4 +19,5 @@ def connect_db():
         if connection.is_connected():
             return connection
     except Error as e:
+        print(DB_CONFIG)
         print(f"Cannot connect to the database. \nError: {e}")

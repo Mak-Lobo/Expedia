@@ -1,12 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from mysql.connector import Error
 
-from backend.db_config import connect_db
-from backend.models.flights import Flight, SaveFlight
+from db_config import connect_db
+from models.flights import Flight, SaveFlight
+from auth import verify_admin
 
-#app router
+# app router
 flight_router = APIRouter(prefix="/flights", tags=["Flights"])
 
 db_connection = connect_db()
@@ -26,12 +27,12 @@ if db_connection:
                 flights = [Flight(
                     id=row[0],
                     flight_number=row[1],
-                    airline_id= row[2],
-                    departure_time= row[3],
-                    no_of_seats= row[4],
-                    departure_airport_id= row[5],
-                    arrival_airport_id= row[6],
-                    duration= row[7],
+                    airline_id=row[2],
+                    departure_time=row[3],
+                    no_of_seats=row[4],
+                    departure_airport_id=row[5],
+                    arrival_airport_id=row[6],
+                    duration=row[7],
                 ) for row in rows]
             return flights
         except Error as e:
@@ -39,14 +40,17 @@ if db_connection:
         finally:
             cursor.close()
 
+
     @flight_router.post('/', response_model=Flight)
-    async def save_flight(flight: SaveFlight):
+    async def save_flight(flight: SaveFlight, current_user: dict = Depends(verify_admin)):
         """
         ### Save a new flight
         """
         cursor = db_connection.cursor()
         try:
-            cursor.callproc("save_flight", [flight.flight_number, flight.airline_id, flight.departure_time, flight.no_of_seats, flight.departure_airport_id, flight.arrival_airport_id, flight.duration])
+            cursor.callproc("save_flight",
+                            [flight.flight_number, flight.airline_id, flight.departure_time, flight.no_of_seats,
+                             flight.departure_airport_id, flight.arrival_airport_id, flight.duration])
             db_connection.commit()
             return "Flight saved successfully"
         except Error as e:
@@ -54,14 +58,15 @@ if db_connection:
         finally:
             cursor.close()
 
+
     @flight_router.delete('/{id}', response_model=Flight)
-    async def delete_flight(flight_id: int):
+    async def delete_flight(flight_id: int, current_user: dict = Depends(verify_admin)):
         """
         ### Delete a flight
         """
         cursor = db_connection.cursor()
         try:
-            cursor.callproc("delete_flight", [flight_id])
+            cursor.callproc("delete_flights", [flight_id])
             db_connection.commit()
             return "Flight deleted successfully"
         except Error as e:
@@ -69,14 +74,17 @@ if db_connection:
         finally:
             cursor.close()
 
+
     @flight_router.put('/{id}', response_model=Flight)
-    async def update_flight(flight_id: int, flight: Flight):
+    async def update_flight(flight_id: int, flight: Flight, current_user: dict = Depends(verify_admin)):
         """
         ### Update a flight
         """
         cursor = db_connection.cursor()
         try:
-            cursor.callproc("update_flight", [flight_id, flight.flight_number, flight.airline_id, flight.departure_time, flight.no_of_seats, flight.departure_airport_id, flight.arrival_airport_id, flight.duration])
+            cursor.callproc("update_flight", [flight_id, flight.flight_number, flight.airline_id, flight.departure_time,
+                                              flight.no_of_seats, flight.departure_airport_id,
+                                              flight.arrival_airport_id, flight.duration])
             db_connection.commit()
             return "Flight updated successfully"
         except Error as e:

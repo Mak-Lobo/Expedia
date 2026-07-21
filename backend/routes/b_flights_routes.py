@@ -3,8 +3,8 @@ from typing import List
 from mysql.connector import Error
 from fastapi import APIRouter
 
-from backend.db_config import connect_db
-from backend.models.booked_flights import BookedFlight, SaveBookedFlight
+from db_config import connect_db
+from models.booked_flights import BookedFlight
 
 db_connection = connect_db()
 
@@ -18,6 +18,7 @@ async def get_booked_flights():
     :return:
     """
     cursor = db_connection.cursor()
+
     try:
         cursor.callproc("get_bookings")
         booked_flights = []

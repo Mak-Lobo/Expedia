@@ -50,10 +50,10 @@ class _ScreenState extends State<Screen> {
                     icon: Icon(Icons.edit),
                     label: Text("Modify"),
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.flight_takeoff),
-                    label: Text("Flights"),
-                  ),
+                  // NavigationRailDestination(
+                  //   icon: Icon(Icons.flight_takeoff),
+                  //   label: Text("Flights"),
+                  // ),
                 ],
                 selectedIndex: _selectedIndex,
                 onDestinationSelected: (int i) {

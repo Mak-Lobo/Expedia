@@ -1,10 +1,11 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from mysql.connector import Error
 
-from backend.db_config import connect_db
-from backend.models.airline import Airline, SaveAirline
+from db_config import connect_db
+from models.airline import Airline, SaveAirline
+from auth import verify_admin
 
 # airline router
 airline_router = APIRouter(prefix="/airlines", tags=["Airlines"])
@@ -30,8 +31,9 @@ if db_connection:
         finally:
             cursor.close()
 
+
     @airline_router.post('/')
-    async def save_airline(airline: SaveAirline):
+    async def save_airline(airline: SaveAirline, current_user: dict = Depends(verify_admin)):
         """
         ### Save a new airline
         """
@@ -45,8 +47,9 @@ if db_connection:
         finally:
             cursor.close()
 
+
     @airline_router.delete('/{id}')
-    async def delete_airline(airline_id: int):
+    async def delete_airline(airline_id: int, current_user: dict = Depends(verify_admin)):
         """
         ### Delete an airline
         """
@@ -60,8 +63,9 @@ if db_connection:
         finally:
             cursor.close()
 
+
     @airline_router.put('/{id}')
-    async def update_airline(airline_id: int, airline: Airline):
+    async def update_airline(airline_id: int, airline: Airline, current_user: dict = Depends(verify_admin)):
         """
         ### Update an airline
         """

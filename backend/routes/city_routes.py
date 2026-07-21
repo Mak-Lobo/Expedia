@@ -1,9 +1,10 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from mysql.connector import Error
 
-from backend.models.city import City, SaveCity, DeleteCity, UpdateCity, CityCountry
-import backend.db_config as db_config
+from models.city import City, SaveCity, UpdateCity, CityCountry
+import db_config as db_config
+from auth import verify_admin
 
 # city router
 city_router = APIRouter(prefix="/cities", tags=["Cities"])
@@ -50,7 +51,7 @@ if db_connection:
 
 
     @city_router.post("/save", response_model=dict)
-    async def save_city(city: SaveCity):
+    async def save_city(city: SaveCity, current_user: dict = Depends(verify_admin)):
         """
         ### Save a new city
         """
@@ -72,7 +73,7 @@ if db_connection:
 
 
     @city_router.delete("/delete", response_model=dict)
-    async def delete_city(city_id: int):
+    async def delete_city(city_id: int, current_user: dict = Depends(verify_admin)):
         """
         ### Delete a city
         """
@@ -88,7 +89,7 @@ if db_connection:
 
 
     @city_router.put("/update", response_model=dict)
-    async def update_city(city: UpdateCity):
+    async def update_city(city: UpdateCity, current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("update_cities", [city.id, city.name, city.country_id])

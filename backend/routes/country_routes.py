@@ -1,9 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from mysql.connector import Error
-from backend.models.country import Country, SaveCountry, CountryUpdate
-import backend.db_config as db_config
+from models.country import Country, SaveCountry, CountryUpdate
+import db_config as db_config
+from auth import verify_admin
 
 # country router
 country_router = APIRouter(prefix="/countries", tags=["Countries"])
@@ -33,7 +34,7 @@ if db_connection:
 
     # saving countries
     @country_router.post("/")
-    async def save_country(country: SaveCountry):
+    async def save_country(country: SaveCountry, current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         # existing record check
         try:
@@ -56,7 +57,7 @@ if db_connection:
 
     # deleting countries
     @country_router.delete("/{id}")
-    async def delete_country(country_id: int):
+    async def delete_country(country_id: int, current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("delete_country", [country_id])
@@ -71,7 +72,7 @@ if db_connection:
 
     # updating countries
     @country_router.put("/{id}")
-    async def update_country(country_id: int, country: CountryUpdate):
+    async def update_country(country_id: int, country: CountryUpdate, current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("update_countries", [country_id, country.name])

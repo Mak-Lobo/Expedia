@@ -1,10 +1,11 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from mysql.connector import Error
 
-from backend.db_config import connect_db
-from backend.models.passengers import Passenger, SavePassenger, PassengerAndCountry
+from db_config import connect_db
+from models.passengers import Passenger, SavePassenger, PassengerAndCountry
+from auth import verify_admin
 
 pass_router = APIRouter(prefix="/passengers", tags=["Passengers"])
 
@@ -12,7 +13,7 @@ db_connection = connect_db()
 
 if db_connection:
     @pass_router.get('/', response_model=List[Passenger])
-    async def get_passengers():
+    async def get_passengers(current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("get_passengers")
@@ -60,7 +61,7 @@ if db_connection:
 
 
     @pass_router.delete('/delete/{pass_id}', response_model=dict)
-    async def get_passenger(pass_id: int):
+    async def get_passenger(pass_id: int, current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("delete_passenger", [pass_id])
@@ -73,7 +74,7 @@ if db_connection:
 
 
     @pass_router.put('/update', response_model=str | dict)
-    async def update_passenger(pass_id: int, passenger: SavePassenger):
+    async def update_passenger(pass_id: int, passenger: SavePassenger, current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("update_passenger",
@@ -89,7 +90,7 @@ if db_connection:
 
 
     @pass_router.get('/passenger_and_country', response_model=PassengerAndCountry)
-    async def get_passenger_and_country():
+    async def get_passenger_and_country(current_user: dict = Depends(verify_admin)):
         cursor = db_connection.cursor()
         try:
             cursor.callproc("passenger_country_passport")

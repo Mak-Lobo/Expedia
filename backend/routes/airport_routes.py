@@ -1,16 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from mysql.connector import Error
 from typing import List
-from backend.models.airports import Airport, SaveAirport, DeleteAirport, AirportCityCountry
-from backend.db_config import connect_db
+from models.airports import Airport, SaveAirport, AirportCityCountry
+from db_config import connect_db
+from auth import verify_admin
 
 # airport router
 airport_router = APIRouter(prefix="/airports", tags=["Airports"])
 
 db_connection = connect_db()
 
+
 @airport_router.post("/")
-async def save_airport(airport: SaveAirport):
+async def save_airport(airport: SaveAirport, current_user: dict = Depends(verify_admin)):
     """
     ### Save a new airport
     """
@@ -46,7 +48,7 @@ async def get_airports():
 
 
 @airport_router.put("/{id}")
-async def update_airport(airport_id: int, airport: Airport):
+async def update_airport(airport_id: int, airport: Airport, current_user: dict = Depends(verify_admin)):
     cursor = db_connection.cursor()
     try:
         cursor.callproc("update_airport", [airport_id, airport.name, airport.country_id])
@@ -59,7 +61,7 @@ async def update_airport(airport_id: int, airport: Airport):
 
 
 @airport_router.delete("/{id}")
-async def delete_airport(airport_id: int):
+async def delete_airport(airport_id: int, current_user: dict = Depends(verify_admin)):
     """
     ### Delete an airport
     """
@@ -72,6 +74,7 @@ async def delete_airport(airport_id: int):
         return {"message": f"Error deleting airport. \nError: {e}"}
     finally:
         cursor.close()
+
 
 @airport_router.get("/countries", response_model=List[AirportCityCountry])
 async def port_city_country():
