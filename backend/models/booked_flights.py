@@ -1,8 +1,9 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
 class BookedFlight(BaseModel):
-    id: int
+    id: Optional[int] = None
     class_id: int
     holder_id: int
     booking_id: int

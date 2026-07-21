@@ -1,21 +1,22 @@
 import 'package:expedia/controllers/app_controllers.dart';
 import 'package:expedia/customWidgets/form_headers.dart';
 import 'package:expedia/customWidgets/table_cell.dart';
-import 'package:expedia/models/city.dart';
+import 'package:expedia/models/documents.dart';
+import 'package:expedia/models/payment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
-class CitiesData extends StatefulWidget {
-  const CitiesData({super.key});
+class PaymentDocumentData extends StatefulWidget {
+  const PaymentDocumentData({super.key});
 
   @override
-  State<CitiesData> createState() => _CitiesDataState();
+  State<PaymentDocumentData> createState() => _PaymentDocumentDataState();
 }
 
-class _CitiesDataState extends State<CitiesData> {
-  Future<List<City>>? _citiesFuture;
-  Future<List<CityCountry>>?  _cityCountriesFuture;
+class _PaymentDocumentDataState extends State<PaymentDocumentData> {
+  Future<List<Payment>>? _paymentsFuture;
+  Future<List<Document>>? _documentsFuture;
   bool _initialized = false;
 
   @override
@@ -27,10 +28,12 @@ class _CitiesDataState extends State<CitiesData> {
       }
 
       final authController = context.read<AuthController>();
-      final cityController = context.read<CityController>();
+      final paymentController = context.read<PaymentController>();
+      final documentController = context.read<DocumentController>();
+
       setState(() {
-        _citiesFuture = cityController.loadCities(userId: authController.currentUserId);
-        _cityCountriesFuture = cityController.loadCitiesWithCountry(userId: authController.currentUserId);
+        _paymentsFuture = paymentController.loadPayments(userId: authController.currentUserId);
+        _documentsFuture = documentController.loadDocuments(userId: authController.currentUserId);
         _initialized = true;
       });
     });
@@ -43,7 +46,7 @@ class _CitiesDataState extends State<CitiesData> {
       child: Column(
         children: [
           const SizedBox(height: 20),
-          const FormHeader(header: "Available Cities"),
+          const FormHeader(header: "Payment Methods"),
           const SizedBox(height: 20),
           Divider(
             thickness: 1.3,
@@ -52,8 +55,8 @@ class _CitiesDataState extends State<CitiesData> {
           const SizedBox(height: 30),
           Expanded(
             child: SingleChildScrollView(
-              child: FutureBuilder<List<City>>(
-                future: _citiesFuture,
+              child: FutureBuilder<List<Payment>>(
+                future: _paymentsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -75,7 +78,7 @@ class _CitiesDataState extends State<CitiesData> {
                     );
                   }
 
-                  final cityList = snapshot.data ?? const <City>[];
+                  final payments = snapshot.data ?? const <Payment>[];
                   return Table(
                     border: TableBorder.all(
                       color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
@@ -84,12 +87,11 @@ class _CitiesDataState extends State<CitiesData> {
                     columnWidths: const <int, TableColumnWidth>{
                       0: FixedColumnWidth(50),
                       1: FlexColumnWidth(),
-                      2: FlexColumnWidth(),
                     },
                     children: [
                       TableRow(
                         children: [
-                          for (final header in const ["ID", "Name", "Country"])
+                          for (final header in const ["ID", "Name"])
                             TableCell(
                               child: Center(
                                 child: Padding(
@@ -103,12 +105,11 @@ class _CitiesDataState extends State<CitiesData> {
                             ),
                         ],
                       ),
-                      for (final city in cityList)
+                      for (final payment in payments)
                         TableRow(
                           children: [
-                            CustomTableCell(cellText: city.id.toString()),
-                            CustomTableCell(cellText: city.name),
-                            CustomTableCell(cellText: city.countryId.toString()),
+                            CustomTableCell(cellText: payment.id?.toString() ?? ''),
+                            CustomTableCell(cellText: payment.name),
                           ],
                         ),
                     ],
@@ -123,12 +124,12 @@ class _CitiesDataState extends State<CitiesData> {
             color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 20),
-          const FormHeader(header: "Cities with Countries"),
+          const FormHeader(header: "Documents"),
           const SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
-              child: FutureBuilder<List<CityCountry>>(
-                future: _cityCountriesFuture,
+              child: FutureBuilder<List<Document>>(
+                future: _documentsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -150,22 +151,21 @@ class _CitiesDataState extends State<CitiesData> {
                     );
                   }
 
-                  final cityCountryList = snapshot.data ?? const <CityCountry>[];
+                  final documents = snapshot.data ?? const <Document>[];
                   return Table(
                     border: TableBorder.all(
                       color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                     columnWidths: const <int, TableColumnWidth>{
-                      0: FlexColumnWidth(),
+                      0: FixedColumnWidth(50),
                       1: FlexColumnWidth(),
                     },
                     children: [
                       TableRow(
                         children: [
-                          for (final header in const ["City", "Country"])
+                          for (final header in const ["ID", "Name"])
                             TableCell(
-                              verticalAlignment: TableCellVerticalAlignment.middle,
                               child: Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -178,11 +178,11 @@ class _CitiesDataState extends State<CitiesData> {
                             ),
                         ],
                       ),
-                      for (final cityCountry in cityCountryList)
+                      for (final document in documents)
                         TableRow(
                           children: [
-                            CustomTableCell(cellText: cityCountry.city),
-                            CustomTableCell(cellText: cityCountry.country),
+                            CustomTableCell(cellText: document.id?.toString() ?? ''),
+                            CustomTableCell(cellText: document.name),
                           ],
                         ),
                     ],

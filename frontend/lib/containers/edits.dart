@@ -113,7 +113,6 @@ class _EditsState extends State<Edits> {
                 itemCount: entities.length,
                 itemBuilder: (context, i) {
                   final texts = entities.keys.toList();
-                  final forms = entities.values.toList();
                   return Card(
                     elevation: 10,
                     child: ListTile(

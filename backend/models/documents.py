@@ -1,7 +1,8 @@
+from typing import Optional
 from pydantic import BaseModel
 
 class Document(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: str
 
 class SaveDoc(BaseModel):

@@ -1,4 +1,7 @@
+import 'package:expedia/fetch/airport_data.dart';
+import 'package:expedia/fetch/booking_data.dart';
 import 'package:expedia/fetch/city_data.dart';
+import 'package:expedia/fetch/payment_document_data.dart';
 import 'package:expedia/fetch/passenger_data.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +18,9 @@ class _ReadDataState extends State<ReadData> {
   final Map<String, Widget> entities = {
     "Passengers": const PassengersData(),
     "Cities": const CitiesData(),
-    // "Countries": const CountryForm(),
-    // "Airlines": const AirlineForm(),
-    // "Airports": const AirportForm(),
+    "Airports": const AirportsData(),
+    "Booking Types & Classes": const BookingData(),
+    "Payments & Documents": const PaymentDocumentData(),
   };
 
   @override
@@ -31,14 +34,14 @@ class _ReadDataState extends State<ReadData> {
         const SizedBox(height: 20),
         Divider(
           thickness: 1.3,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
         ),
         const SizedBox(height: 30),
         Container(
           decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.tertiaryContainer.withOpacity(0.5),
+            ).colorScheme.tertiaryContainer.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(10),
           ),
           padding: const EdgeInsets.all(10),

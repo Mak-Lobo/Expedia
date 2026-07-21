@@ -9,9 +9,10 @@ SnackBar customSnackBar({
 }) {
   return SnackBar(
     content: Text(message, softWrap: true),
-    duration: const Duration(milliseconds: 1500),
+    duration: const Duration(milliseconds: 3500),
+
     behavior: SnackBarBehavior.floating,
-    width: 200,
+    width: 500,
     backgroundColor:
         backgroundColor, // SnackBar handles default color if this is null
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

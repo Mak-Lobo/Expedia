@@ -12,7 +12,6 @@ class User(BaseModel):
 
 
 class UserCreate(BaseModel):
-    user_id: int
     first_name: str
     last_name: str
     email: str
@@ -21,7 +20,6 @@ class UserCreate(BaseModel):
 
 
 class UserRegister(BaseModel):
-    user_id: int
     first_name: str
     last_name: str
     email: str

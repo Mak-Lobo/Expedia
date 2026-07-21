@@ -8,7 +8,8 @@ DB_CONFIG = {
     "host": os.getenv("HOST"),
     "database": os.getenv("DATABASE"),
     "user": os.getenv("DB_USER"),
-    "password": os.getenv("PASSWORD")
+    "password": os.getenv("PASSWORD"),
+    "autocommit": True
 }
 
 

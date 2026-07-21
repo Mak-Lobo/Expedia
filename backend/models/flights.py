@@ -1,10 +1,11 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
 #flight models
 class Flight(BaseModel):
-    id: int
+    id: Optional[int] = None
     flight_number: str
     airline_id: int
     departure_time: datetime

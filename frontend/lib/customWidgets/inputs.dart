@@ -22,8 +22,13 @@ InputDecoration customInputField(BuildContext context, String label) {
 // custom submit button
 class SubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final String label;
 
-  const SubmitButton({super.key, required this.onPressed});
+  const SubmitButton({
+    super.key,
+    required this.onPressed,
+    this.label = "Submit",
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +49,7 @@ class SubmitButton extends StatelessWidget {
             ).textTheme.bodyLarge!.copyWith(fontFamily: "Texturina"),
           ),
         ),
-        child: Padding(padding: const EdgeInsets.all(5), child: Text("Submit")),
+        child: Padding(padding: const EdgeInsets.all(5), child: Text(label)),
       ),
     );
   }
@@ -53,8 +58,13 @@ class SubmitButton extends StatelessWidget {
 // custom delete button
 class DeleteButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final String label;
 
-  const DeleteButton({super.key, required this.onPressed});
+  const DeleteButton({
+    super.key,
+    required this.onPressed,
+    this.label = "Delete",
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +86,7 @@ class DeleteButton extends StatelessWidget {
             ),
           ),
         ),
-        child: Padding(padding: const EdgeInsets.all(5), child: Text("Delete")),
+        child: Padding(padding: const EdgeInsets.all(5), child: Text(label)),
       ),
     );
   }
@@ -85,13 +95,14 @@ class DeleteButton extends StatelessWidget {
 // custom text button
 class CustomTextButton extends StatelessWidget {
   final String text;
+  final VoidCallback? onPressed;
 
-  const CustomTextButton({super.key, required this.text});
+  const CustomTextButton({super.key, required this.text, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ButtonStyle(
         backgroundColor: WidgetStatePropertyAll(
           Theme.of(
@@ -104,8 +115,8 @@ class CustomTextButton extends StatelessWidget {
         style: TextStyle(
           fontFamily: "Montserrat",
           color: Theme.of(context).colorScheme.onTertiaryContainer,
-          fontWeight: FontWeight.w500,
-          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          fontSize: 14,
         ),
       ),
     );

@@ -1,15 +1,13 @@
+import 'package:expedia/controllers/app_controllers.dart';
 import 'package:expedia/customWidgets/form_headers.dart';
 import 'package:expedia/customWidgets/inputs.dart';
+import 'package:expedia/customWidgets/snack.dart';
+import 'package:expedia/customWidgets/table_cell.dart';
+import 'package:expedia/models/passengers.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-import '../configurations/passenger_config.dart';
-import '../customWidgets/snack.dart';
-import '../customWidgets/table_cell.dart';
-
-GetIt getIt = GetIt.instance;
+import 'package:provider/provider.dart';
 
 class PassengersData extends StatefulWidget {
   const PassengersData({super.key});
@@ -19,53 +17,65 @@ class PassengersData extends StatefulWidget {
 }
 
 class _PassengersDataState extends State<PassengersData> {
-  final passengerConfig = getIt.get<PassengerConfig>();
-  TextEditingController? _idToBeDeleted;
-
-  @override
-  void initState() {
-    super.initState();
-    _idToBeDeleted = TextEditingController();
-  }
+  final _idToBeDeleted = TextEditingController();
+  Future<List<Passenger>>? _passengersFuture;
+  bool _initialized = false;
 
   @override
   void dispose() {
-    _idToBeDeleted?.dispose();
+    _idToBeDeleted.dispose();
     super.dispose();
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _initialized) {
+        return;
+      }
+
+      final authController = context.read<AuthController>();
+      final passengerController = context.read<PassengerController>();
+      setState(() {
+        _passengersFuture = passengerController.loadPassengers(
+          userId: authController.currentUserId,
+        );
+        _initialized = true;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final passengerListFuture = passengerConfig.mapPassengers();
-    print(passengerListFuture.toString());
+    final authController = context.read<AuthController>();
+    final passengerController = context.read<PassengerController>();
+
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
         children: [
           const SizedBox(height: 20),
-          FormHeader(header: "Registered Passengers"),
+          const FormHeader(header: "Registered Passengers"),
           const SizedBox(height: 20),
           Divider(
             thickness: 1.3,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 30),
           Expanded(
             child: SingleChildScrollView(
-              child: FutureBuilder<List>(
-                future: passengerListFuture,
-                builder: (context, asyncSnapshot) {
-                  if (asyncSnapshot.connectionState ==
-                      ConnectionState.waiting) {
+              child: FutureBuilder<List<Passenger>>(
+                future: _passengersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
                       child: SpinKitWanderingCubes(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     );
-                  } else if (asyncSnapshot.hasError) {
-                    print(
-                      "Error in fetching data from database: ${asyncSnapshot.data}",
-                    );
+                  }
+                  if (snapshot.hasError) {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -73,88 +83,75 @@ class _PassengersDataState extends State<PassengersData> {
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                         const SizedBox(height: 20),
-                        Text('Error: ${asyncSnapshot.error}'),
+                        Text('Error: ${snapshot.error}'),
                       ],
                     );
-                  } else if (asyncSnapshot.hasData) {
-                    final passengerList = asyncSnapshot.data!;
-                    // loop to get the keys at each index to be used as column names
-                    final columnNames = [
-                      "ID",
-                      "First Name",
-                      "Last Name",
-                      "Sex",
-                      "Date of Birth",
-                      "Email",
-                      "Doc Type",
-                      "Doc Number",
-                      "Doc Expiry",
-                      "Nationality",
-                    ];
-                    return Table(
-                      border: TableBorder.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
-                        width: 1.5,
-                      ),
-                      columnWidths: const <int, TableColumnWidth>{
-                        0: FixedColumnWidth(50),
-                        1: FlexColumnWidth(),
-                        2: FlexColumnWidth(),
-                        3: FlexColumnWidth(),
-                        4: FlexColumnWidth(),
-                        5: FlexColumnWidth(),
-                        6: FlexColumnWidth(),
-                        7: FlexColumnWidth(),
-                        8: FlexColumnWidth(),
-                        9: FlexColumnWidth(),
-                      },
-                      children: <TableRow>[
-                        TableRow(
-                          children: <Widget>[
-                            for (String header in columnNames)
-                              TableCell(
-                                verticalAlignment:
-                                    TableCellVerticalAlignment.middle,
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      header.toUpperCase(),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium,
-                                    ),
+                  }
+
+                  final passengerList = snapshot.data ?? const <Passenger>[];
+                  return Table(
+                    border: TableBorder.all(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      width: 1.5,
+                    ),
+                    columnWidths: const <int, TableColumnWidth>{
+                      0: FixedColumnWidth(50),
+                      1: FlexColumnWidth(),
+                      2: FlexColumnWidth(),
+                      3: FlexColumnWidth(),
+                      4: FlexColumnWidth(),
+                      5: FlexColumnWidth(),
+                      6: FlexColumnWidth(),
+                      7: FlexColumnWidth(),
+                      8: FlexColumnWidth(),
+                      9: FlexColumnWidth(),
+                    },
+                    children: [
+                      TableRow(
+                        children: [
+                          for (final header in const [
+                            "ID",
+                            "First Name",
+                            "Last Name",
+                            "Sex",
+                            "Date of Birth",
+                            "Email",
+                            "Doc Type",
+                            "Doc Number",
+                            "Doc Expiry",
+                            "Nationality",
+                          ])
+                            TableCell(
+                              verticalAlignment: TableCellVerticalAlignment.middle,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    header,
+                                    style: Theme.of(context).textTheme.bodyMedium,
                                   ),
                                 ),
                               ),
+                            ),
+                        ],
+                      ),
+                      for (final passenger in passengerList)
+                        TableRow(
+                          children: [
+                            CustomTableCell(cellText: passenger.id.toString()),
+                            CustomTableCell(cellText: passenger.firstName),
+                            CustomTableCell(cellText: passenger.lastName),
+                            CustomTableCell(cellText: passenger.sex),
+                            CustomTableCell(cellText: passenger.birthDate),
+                            CustomTableCell(cellText: passenger.email),
+                            CustomTableCell(cellText: passenger.docType.toString()),
+                            CustomTableCell(cellText: passenger.docNumber.toString()),
+                            CustomTableCell(cellText: passenger.docExpiry),
+                            CustomTableCell(cellText: passenger.nationality.toString()),
                           ],
                         ),
-                        for (var val in passengerList)
-                          TableRow(
-                            children: <Widget>[
-                              CustomTableCell(cellText: val.id.toString()),
-                              CustomTableCell(cellText: val.firstName),
-                              CustomTableCell(cellText: val.lastName),
-                              CustomTableCell(cellText: val.sex),
-                              CustomTableCell(cellText: val.birthDate),
-                              CustomTableCell(cellText: val.email),
-                              CustomTableCell(cellText: val.docType.toString()),
-                              CustomTableCell(
-                                cellText: val.docNumber.toString(),
-                              ),
-                              CustomTableCell(cellText: val.docExpiry),
-                              CustomTableCell(
-                                cellText: val.nationality.toString(),
-                              ),
-                            ],
-                          ),
-                      ],
-                    );
-                  } else {
-                    return const Center(child: Text('No data available'));
-                  }
+                    ],
+                  );
                 },
               ),
             ),
@@ -171,16 +168,46 @@ class _PassengersDataState extends State<PassengersData> {
                 child: TextField(
                   controller: _idToBeDeleted,
                   keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: customInputField(context, "Passenger to delete"),
                 ),
               ),
               const SizedBox(width: 20),
               DeleteButton(
-                onPressed: () {
-                  deletePassenger(context);
+                onPressed: () async {
+                  if (_idToBeDeleted.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please fill all required fields.")),
+                    );
+                    return;
+                  }
+
+                  try {
+                    await passengerController.deletePassenger(
+                      int.parse(_idToBeDeleted.text),
+                      userId: authController.currentUserId,
+                    );
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      customSnackBar(
+                        message: "Passenger deleted successfully",
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    );
+                    setState(() {
+                      _passengersFuture = passengerController.loadPassengers(
+                        userId: authController.currentUserId,
+                      );
+                    });
+                  } catch (error) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      customSnackBar(
+                        message: "Failure to delete passenger: $error",
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                    );
+                  }
                 },
               ),
             ],
@@ -188,46 +215,5 @@ class _PassengersDataState extends State<PassengersData> {
         ],
       ),
     );
-  }
-
-  Future<void> deletePassenger(BuildContext context) async {
-    if (_idToBeDeleted!.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all required fields.")),
-      );
-    } else {
-      try {
-        await passengerConfig.deletePassenger(int.parse(_idToBeDeleted!.text));
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(
-              message: "Passenger deleted successfully",
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-            snackBarAnimationStyle: AnimationStyle(
-              // This property does not exist on SnackBar
-              curve: Curves.easeOut,
-              reverseCurve: Curves.easeInCirc,
-            ),
-          );
-        }
-      } on Exception catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(
-              message: "Failure to delete passenger: ${e.toString()}",
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.error.withValues(blue: 0.4, green: 0.4, red: 0.4),
-            ),
-            snackBarAnimationStyle: AnimationStyle(
-              // This property does not exist on SnackBar
-              curve: Curves.easeOut,
-              reverseCurve: Curves.easeInCirc,
-            ),
-          );
-        }
-      }
-    }
   }
 }

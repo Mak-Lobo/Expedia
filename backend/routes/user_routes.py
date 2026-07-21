@@ -110,7 +110,6 @@ if db_connection:
         hashed_pwd = hash_password(user.password)
         try:
             cursor.callproc("sp_create_user", [
-                user.user_id,
                 user.first_name,
                 user.last_name,
                 user.email,
@@ -149,7 +148,6 @@ if db_connection:
         hashed_pwd = hash_password(user.password)
         try:
             cursor.callproc("sp_register_user", [
-                user.user_id,
                 user.first_name,
                 user.last_name,
                 user.email,

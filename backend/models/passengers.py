@@ -1,8 +1,9 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
 class Passenger(BaseModel):
-    id: int
+    id: Optional[int] = None
     first_name: str
     last_name: str
     sex: str
